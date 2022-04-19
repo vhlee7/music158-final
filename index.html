@@ -22,34 +22,45 @@
 <body onclick="touch();">
     <div id ="canvas"> 
         <h1>Music 158 Final</h1>
-        <div id="info"> click anywhere! </div>
+        <div id="info"> 
+            click anywhere!
+            <div id="coords"> 
+            </div>
+            <div id="time"> 
+            </div>
+        </div>
     </div>
 </body>
 <script>
     var clickx;
     var clicky;
-    var holdlen;
+    var holdlen = 0.0;
     let timer;
+    let hold = false;
 
     document.onmousedown = function(e) {
+        hold = true;
         clickx = e.pageX;
         clicky = e.pageY;
-        holdlen = 0.0;
-        timer = setTimeout(touch(), 100);
+        touch();
     } 
+    document.onmousemove = function(e) {
+        if (hold === true) {
+            clickx = e.pageX;
+            clicky = e.pageY;
+            touch();
+        }
+    }
     document.onmouseup = function(e) {
-        clearTimeout(timer);
-        holdlen = 0;
+        hold = false;
     }
     document.onmouseleave = function(e) {
-        clearTimeout(timer);
-        holdlen = 0;
+        hold = false;
     }
 
     function touch() {
-        var info = document.getElementById("info");
-        holdlen += 0.1;
-        info.innerHTML = "x: " + clickx + " y: " + clicky + "<br>" + "held for: " + holdlen;
+        var coords = document.getElementById("coords");
+        coords.innerHTML = "x: " + clickx + " y: " + clicky;
     }
 </script>
 </html>
