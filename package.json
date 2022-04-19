@@ -1,0 +1,23 @@
+{
+  "name": "music158-final",
+  "version": "1.0.0",
+  "description": "packages for music158 final proj",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vhlee7/music158-final.git"
+  },
+  "author": "Vincent Lee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vhlee7/music158-final/issues"
+  },
+  "homepage": "https://github.com/vhlee7/music158-final#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "https": "^1.0.0"
+  }
+}
