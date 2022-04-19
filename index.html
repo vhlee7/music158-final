@@ -3,9 +3,53 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Main Page</title>
+
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #canvas {
+            background-color: lightblue;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>Music 158 Final</h1>
+<body onclick="touch();">
+    <div id ="canvas"> 
+        <h1>Music 158 Final</h1>
+        <div id="info"> click anywhere! </div>
+    </div>
 </body>
+<script>
+    var clickx;
+    var clicky;
+    var holdlen;
+    let timer;
+
+    document.onmousedown = function(e) {
+        clickx = e.pageX;
+        clicky = e.pageY;
+        holdlen = 0.0;
+        timer = setTimeout(touch(), 100);
+    } 
+    document.onmouseup = function(e) {
+        clearTimeout(timer);
+        holdlen = 0;
+    }
+    document.onmouseleave = function(e) {
+        clearTimeout(timer);
+        holdlen = 0;
+    }
+
+    function touch() {
+        var info = document.getElementById("info");
+        holdlen += 0.1;
+        info.innerHTML = "x: " + clickx + " y: " + clicky + "<br>" + "held for: " + holdlen;
+    }
+</script>
 </html>
