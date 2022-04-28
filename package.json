@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/vhlee7/music158-final#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.3",
-    "https": "^1.0.0"
+    "https": "^1.0.0",
+    "ws": "^8.5.0"
   }
 }
