@@ -13,9 +13,24 @@ const objs = [];
 
 let container, camera, scene, renderer, effect;
 
-let particleSystem, unforms, geometry;
+let numGroups = 6;
+let particleGroups = [];
+let particleSystems = [];
+let particleGeos = [];
 
-const particles = 10000;
+let uniforms;
+
+const particles = 1000;
+
+// Wave configuration
+var wavespeed = 1;
+var wavewidth = 0.4;
+var waveheight = 0.4;
+var objects_margin = 20;
+//Array
+var waveobjects = new Array();
+
+let clock = new THREE.Clock();
 
 //socekts
 ws.onopen = function (event) {
@@ -31,8 +46,6 @@ ws.onmessage = function (event) {
 };
 
 // three js stuff
-//init();
-//animate();
 
 function init() {
 	//container = document.createElement('div');
@@ -63,64 +76,76 @@ function init() {
 		transparent: true,
 		vertexColors: true
 	} );
-	const radius = 200;
-	const particle_geometry = new THREE.BufferGeometry();
-	const positions = [];
-	const colors = [];
-	const sizes = [];
+	const radius = 0.4;
 
-	const color = new THREE.Color();
-	for (let i = 0; i < particles; i ++) {
-		positions.push( ( Math.random() * 2 - 1 ) * radius );
-		positions.push( ( Math.random() * 2 - 1 ) * radius );
-		positions.push( ( Math.random() * 2 - 1 ) * radius );
-		color.setHSL( i / particles, 1.0, 0.5 );
-		colors.push( color.r, color.g, color.b );
-		sizes.push( 20 );
-	}
+	for (let i = 0; i < numGroups; i++) {
+		let particleSystem, particleGeometry;
 
-	particle_geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-	particle_geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-	particle_geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setUsage( THREE.DynamicDrawUsage ) );
-
-	particleSystem = new THREE.Points( particle_geometry, shaderMaterial );
-
-	scene.add( particleSystem );
-
-	// the objects
-	const center = new THREE.BoxGeometry(1, 1, 1);
-
-	const geometryCube = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-	const geometrySphere = new THREE.SphereGeometry( 0.1, 32, 16 );
-	const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-	for (let i = 0; i < 6; i++) {
-		if (i % 2 == 0) {
-			const cube = new THREE.Mesh( geometryCube, material );
-			cube.position.x = Math.random() * 10 - 5;
-			cube.position.y = Math.random() * 10 - 5;
-			cube.position.z = Math.random() * 10 - 5;
-			//cube.scale.x = cube.scale.y = cube.scale.z = Math.random() * 3 + 1;
-			cube.color = 0x123456;
-
-			objs.push(cube);
-			scene.add(cube);
-		} else if (i % 2 == 1) {
-			const sphere = new THREE.Mesh( geometrySphere, material );
-			sphere.position.x = Math.random() * 10 - 5;
-			sphere.position.y = Math.random() * 10 - 5;
-			sphere.position.z = Math.random() * 10 - 5;
-			//sphere.scale.x = sphere.scale.y = sphere.scale.z = Math.random() * 3 + 1;
-
-			objs.push(sphere);
-			scene.add(sphere);
-		} else {
-
+		particleGeometry = new THREE.BufferGeometry();
+		const positions = [];
+		const colors = [];
+		const sizes = [];
+		const color = new THREE.Color();
+		for (let i = 0; i < particles; i ++) {
+			//let x = (Math.random()
+			positions.push( ( Math.random() * 2 - 1 ) * radius );
+			positions.push( ( Math.random() * 2 - 1 ) * radius );
+			positions.push( ( Math.random() * 2 - 1 ) * radius );
+			color.setHSL( i / particles, 1.0, 0.5 );
+			colors.push( color.r, color.g, color.b );
+			sizes.push( 0.5 );
 		}
+
+		particleGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+		particleGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+		particleGeometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setUsage( THREE.DynamicDrawUsage ) );
+
+		particleSystem = new THREE.Points( particleGeometry, shaderMaterial );
+		particleGroups.push([particleSystem, particleGeometry]);
+		scene.add( particleSystem );
 	}
+
+
+	// the sun
+	const sunColor = new THREE.Color();
+	//sunColor.setHSL(0.51, 0.95, 0.54);
+	const geometrySphere = new THREE.SphereGeometry(0.7, 32, 16 );
+	geometrySphere.center();
+	//geometrySphere.setAttribute('color', sunColor);
+	const material = new THREE.MeshBasicMaterial( { color: 0xFDB813 } );
+	const sun = new THREE.Mesh(geometrySphere, material);
+	scene.add(sun);
 
 }
 function animate_obj() {
-	const timer = 0.0001 * Date.now();
+	const timer = 0.005 * Date.now();
+	var delta = clock.getDelta();
+    var elapsed = clock.elapsedTime;
+
+	for (let p = 0; p < numGroups; p++) {
+		let particleSystem = particleGroups[p][0];
+		let particleGeometry = particleGroups[p][1];
+
+		particleSystem.rotation.z = 0.005 * timer;
+		particleSystem.position.y = Math.sin( (elapsed + 
+			particleSystem.position.x / wavewidth) + 
+			(particleSystem.position.z / wavewidth)  * 
+			wavespeed ) * waveheight;
+
+		particleSystem.position.x = Math.cos( (elapsed + 
+			particleSystem.position.y / wavewidth) + 
+			(particleSystem.position.z / wavewidth)  * 
+			wavespeed ) * waveheight;
+		const sizes = particleGeometry.attributes.size.array
+		
+		for ( let i = 0; i < particles; i ++ ) {
+			sizes[ i ] = 0.05 * ( 1 + Math.sin( 0.1 * i + timer ) );
+		}
+		particleGeometry.attributes.size.needsUpdate = true;
+	}
+
+
+
 	for ( let i = 0, il = objs.length; i < il; i++ ) {
 		const o = objs[ i ];
 		o.position.x = 5 * Math.cos( timer + i ) *0.1;
