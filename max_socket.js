@@ -61,38 +61,22 @@ const wss = new WebSocket.Server({ port: 7474 });
 wss.on("connection", function connection(ws, req) {
 
 	ws.on("message", function incoming(message) {
-		console.log("received: %s", message);
+		//console.log("received: %s", message);
+		//Max.post(message);
+		Max.outlet(JSON.parse(message));
+
 	});
 
 	ws.on("close", function stop() {
 		Max.removeHandlers("send");
 		console.log("Connection closed");
-
 		ws.terminate();
 	});
 
-	const sender = function (a, b, c) {
-		ws.send(JSON.stringify({
-			"value_1": a,
-			"value_2": b,
-			"value_3": c
-		}));
-	};
-
-	// Handle the Max interactions here...
-	Max.addHandler("send", (...args) => {
-		console.log("send args: " + args);
-		if (args.length === 3) {
-			sender(args[0], args[1], args[2]);
-		}
-        Max.post("received send");
-	});
-
-    Max.addHandler("Hello from Max", () => {
-        Max.post("Hello from Node");
-    });
-
 });
+
+
+//Max.post("hiii");
 
 Max.addHandler(Max.MESSAGE_TYPES.ALL, (handled, ...args) => {
 	if (!handled) {
